@@ -34,7 +34,7 @@ jobs:
             AWS_DEFAULT_REGION: ap-southeast-1
         - name: Create EKS Cluster
           run: |
-           eksctl create cluster --name=eks-docker101 --nodes=1 --kubeconfig=./kubeconfig-eks-docker101.yaml --region=ap-southeast-1 
+           eksctl create cluster --name=eks-docker101 --nodes=1 --kubeconfig=./kubeconfig-eks-docker101.yaml --region=ap-southeast-1  || true
         
         - name: Authenticate with EKS ( Authentication to eks cluster )
           run: aws eks update-kubeconfig --name eks-docker101
