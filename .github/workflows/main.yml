@@ -1,0 +1,45 @@
+name: Basic CI/CD ( Pipeline )
+
+on: [push]
+
+jobs:
+    build:
+      runs-on: ubuntu-latest
+
+      steps:
+        - name: Action Version
+          uses: actions/checkout@v4
+
+        - name: Push Docker image (docker101-miniproject) #Image Name that you created in docker
+          run: |
+            docker build -t docker101-miniproject:latest .
+            echo ${{ secrets.DOCKER_PASSWORD }}  | docker login -u ${{ secrets.DOCKER_USERNAME }}  --password-stdin
+            docker image tag docker101-miniproject:latest aungmyohein/docker101-miniproject:latest
+            docker push aungmyohein/docker101-miniproject:latest
+
+        - name: Install eksctl
+          run: |
+            ARCH=amd64
+            PLATFORM=$(uname -s)_$ARCH
+            curl -sLO "https://github.com/eksctl-io/eksctl/releases/latest/download/eksctl_$PLATFORM.tar.gz"
+            tar -xzf eksctl_$PLATFORM.tar.gz -C /tmp && rm eksctl_$PLATFORM.tar.gz
+            sudo mv /tmp/eksctl /usr/local/bin
+ 
+        - name: Configure AWS credentials
+          run: |
+            aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }} 
+            aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }} 
+            aws configure set default.region ap-southeast-1
+          env:
+            AWS_DEFAULT_REGION: ap-southeast-1
+        - name: Create EKS Cluster
+          run: |
+           eksctl create cluster --name=eks-docker101 --nodes=1 --kubeconfig=./kubeconfig-eks-docker101.yaml --region=ap-southeast-1 --profile=iam-amh-master
+        
+        - name: Authenticate with EKS ( Authentication to eks cluster )
+          run: aws eks update-kubeconfig --name docker101
+
+        - name: Deploy to EKS ( Deploying simple python app )
+          run: |
+            kubectl apply -f k8s/docker101-miniproject.yaml
+            kubectl get nodes -o wide   
