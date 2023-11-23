@@ -37,7 +37,7 @@ jobs:
            eksctl create cluster --name=eks-docker101 --nodes=1 --kubeconfig=./kubeconfig-eks-docker101.yaml --region=ap-southeast-1 
         
         - name: Authenticate with EKS ( Authentication to eks cluster )
-          run: aws eks update-kubeconfig --name docker101
+          run: aws eks update-kubeconfig --name eks-docker101
 
         - name: Deploy to EKS ( Deploying simple python app )
           run: |
