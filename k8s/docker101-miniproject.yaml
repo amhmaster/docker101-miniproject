@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: docker101-miniproject
+  name: my-app-deployment
 spec:
   replicas: 1  # Set the desired number of replicas
   selector:
@@ -14,10 +14,10 @@ spec:
     spec:
       containers:
       - name: my-app
-        image: aungmyohein/docker101-miniproject # Use the image built earlier
+        image: aungmyohein/docker101-miniproject  # Use the image built earlier
         ports:
         - name: http
-          containerPort: 80
+          containerPort: 3000
           protocol: TCP
       
 ---
@@ -31,6 +31,5 @@ spec:
   ports:
     - name: http
       port: 5000
-      nodePort: 31717
-      targetPort: 80
-  type: NodePort
+      targetPort: 3000
+  type: LoadBalancer
